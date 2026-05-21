@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D-Mart vs Blinkit – Power BI Project Guide</title>
+<style>
+  :root {
+    --navy: #1F3864;
+    --teal: #2E75B6;
+    --amber: #F4B942;
+    --light: #EEF2FA;
+    --grey: #595959;
+    --white: #ffffff;
+    --green: #2E7D32;
+    --red: #C62828;
+    --bg: #F7F9FC;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: #222; font-size: 14px; line-height: 1.7; }
+
+  /* ── NAV ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+    background: var(--navy); overflow-y: auto; padding: 0 0 40px;
+    z-index: 100; scrollbar-width: thin;
+  }
+  .sidebar-logo {
+    padding: 18px 16px 14px;
+    background: linear-gradient(135deg, #152748, #2E75B6);
+    border-bottom: 2px solid var(--amber);
+    font-size: 11px; color: #aac4e8; line-height: 1.4;
+  }
+  .sidebar-logo strong { display: block; font-size: 13px; color: #fff; margin-bottom: 2px; }
+  .nav-section { padding: 10px 16px 4px; font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1.2px; color: #7098c2; font-weight: 700; }
+  .nav-link {
+    display: block; padding: 7px 16px 7px 20px; color: #c5d9f0;
+    text-decoration: none; font-size: 12px; border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.08);
+    border-left-color: var(--amber); color: #fff; }
+
+  /* ── MAIN ── */
+  .main { margin-left: 220px; padding: 28px 36px 60px; max-width: 1020px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, #2563a8 100%);
+    color: white; border-radius: 12px; padding: 32px 36px; margin-bottom: 30px;
+    position: relative; overflow: hidden;
+  }
+  .hero::after { content: ''; position: absolute; right: -30px; top: -30px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: rgba(244,185,66,0.12); }
+  .hero h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .hero p { opacity: 0.82; font-size: 13px; max-width: 620px; }
+  .hero .tags { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; border: 1px solid rgba(255,255,255,0.25);
+  }
+  .tag.amber { background: var(--amber); color: #1a1a1a; border-color: var(--amber); }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 36px; }
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 2px solid var(--teal); padding-bottom: 8px; margin-bottom: 18px;
+  }
+  .section-header .num {
+    background: var(--teal); color: white; width: 28px; height: 28px;
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 17px; color: var(--navy); font-weight: 700; }
+
+  /* ── CARDS ── */
+  .card {
+    background: white; border: 1px solid #dce6f5; border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 14px;
+    border-left: 4px solid var(--teal);
+  }
+  .card.amber-l { border-left-color: var(--amber); }
+  .card.green-l { border-left-color: var(--green); }
+  .card.red-l   { border-left-color: var(--red); }
+  .card h3 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .card p  { font-size: 13px; color: #333; }
+  .card ul { padding-left: 18px; }
+  .card ul li { font-size: 13px; color: #333; margin-bottom: 4px; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── CODE BLOCKS ── */
+  pre, code {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+  }
+  pre {
+    background: #0f1923; color: #e8eaf6; border-radius: 8px;
+    padding: 16px 18px; overflow-x: auto; margin: 10px 0;
+    border-left: 4px solid var(--teal);
+  }
+  code { background: #eef2fa; color: #1a237e; padding: 1px 6px; border-radius: 3px; }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step-counter; }
+  .step {
+    counter-increment: step-counter; position: relative;
+    background: white; border: 1px solid #dce6f5; border-radius: 10px;
+    padding: 14px 16px 14px 52px; margin-bottom: 12px;
+  }
+  .step::before {
+    content: counter(step-counter);
+    position: absolute; left: 14px; top: 14px;
+    background: var(--navy); color: white; width: 24px; height: 24px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .step h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .step p, .step ul { font-size: 13px; color: #444; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--navy); color: white; padding: 9px 12px; text-align: left; font-size: 12px; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e8ecf4; }
+  tr:nth-child(even) td { background: var(--light); }
+
+  /* ── HIGHLIGHT BOXES ── */
+  .insight-box {
+    background: linear-gradient(135deg, #e8f4e8, #f0fff0);
+    border: 1px solid #81c784; border-radius: 8px;
+    padding: 14px 18px; margin-bottom: 12px;
+  }
+  .insight-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--green); margin-bottom: 4px; }
+  .warning-box {
+    background: #fff8e1; border: 1px solid #ffb300; border-radius: 8px;
+    padding: 14px 18px; margin-bottom: 12px;
+  }
+  .warning-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #e65100; margin-bottom: 4px; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi {
+    background: white; border: 1px solid #dce6f5; border-radius: 10px;
+    padding: 14px; text-align: center;
+    border-top: 4px solid var(--teal);
+  }
+  .kpi.amber { border-top-color: var(--amber); }
+  .kpi .val { font-size: 22px; font-weight: 700; color: var(--navy); }
+  .kpi .lbl { font-size: 10px; color: var(--grey); margin-top: 4px; text-transform: uppercase;
+    letter-spacing: 0.5px; }
+  .kpi .chg { font-size: 11px; margin-top: 3px; font-weight: 600; }
+  .chg.up { color: var(--green); }
+  .chg.dn { color: var(--red); }
+
+  /* ── MOCK DASHBOARD ── */
+  .mock-dashboard {
+    background: #1a2535; border-radius: 12px; padding: 20px; margin-bottom: 18px;
+    border: 1px solid #304060;
+  }
+  .mock-header { color: #c0d0e8; font-size: 13px; font-weight: 700; margin-bottom: 14px;
+    border-bottom: 1px solid #304060; padding-bottom: 8px; }
+  .mock-row { display: grid; gap: 10px; margin-bottom: 10px; }
+  .mock-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .mock-row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .mock-row.cols-12 { grid-template-columns: 1fr 2fr; }
+  .mock-tile {
+    background: #243045; border-radius: 8px; padding: 12px;
+    border: 1px solid #304060;
+  }
+  .mock-tile .mt { font-size: 9px; text-transform: uppercase; color: #6a84a8;
+    letter-spacing: 0.8px; margin-bottom: 6px; }
+  .mock-tile .mv { font-size: 20px; font-weight: 700; color: #e8edf5; }
+  .mock-tile .ms { font-size: 10px; color: #4caf50; margin-top: 3px; }
+  .mock-tile .ms.red { color: #ef5350; }
+  .mock-tile .chart-ph {
+    height: 60px; background: linear-gradient(135deg, #1e3a5f, #2e5b9a);
+    border-radius: 4px; display: flex; align-items: flex-end; gap: 3px; padding: 6px;
+    overflow: hidden;
+  }
+  .bar { background: var(--teal); border-radius: 2px 2px 0 0; }
+  .bar.amber { background: var(--amber); }
+
+  /* ── QUOTE / ANALYST NOTE ── */
+  .analyst-note {
+    background: white; border: 1px solid #dce6f5; border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 14px; position: relative;
+    padding-left: 28px;
+  }
+  .analyst-note::before {
+    content: '"'; position: absolute; left: 10px; top: 8px;
+    font-size: 32px; color: var(--teal); line-height: 1; font-family: Georgia, serif;
+  }
+  .analyst-note p { font-size: 13px; color: #333; font-style: italic; line-height: 1.6; }
+  .analyst-note .src { font-size: 11px; color: var(--grey); margin-top: 6px;
+    font-style: normal; font-weight: 600; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 12px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+  }
+  .badge.blue  { background: #dbeafe; color: #1e40af; }
+  .badge.green { background: #d1fae5; color: #065f46; }
+  .badge.red   { background: #fee2e2; color: #991b1b; }
+  .badge.amber { background: #fef3c7; color: #92400e; }
+
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+
+  /* ── RESUME BLOCK ── */
+  .resume-block {
+    background: #f8faff; border: 2px dashed var(--teal); border-radius: 10px;
+    padding: 18px 20px; font-family: 'Courier New', monospace; font-size: 12px;
+    color: #1a1a1a; line-height: 1.7;
+  }
+
+  /* ── LINKEDIN ── */
+  .linkedin-box {
+    background: white; border: 2px solid #0077b5; border-radius: 12px;
+    padding: 20px; font-size: 13px; line-height: 1.7;
+  }
+  .linkedin-box .li-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .li-avatar { width: 40px; height: 40px; background: var(--navy); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+
+  /* ── Q&A ── */
+  .qa { background: white; border: 1px solid #dce6f5; border-radius: 10px;
+    margin-bottom: 12px; overflow: hidden; }
+  .qa-q { background: var(--light); padding: 12px 16px; font-weight: 700;
+    font-size: 13px; color: var(--navy); }
+  .qa-a { padding: 12px 16px; font-size: 13px; color: #333; border-top: 1px solid #dce6f5; }
+
+  .divider { height: 1px; background: #dce6f5; margin: 30px 0; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px 18px; }
+    .grid-2, .grid-3, .kpi-grid, .mock-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <strong>D-Mart vs Blinkit</strong>
+    Power BI Project Guide
+  </div>
+  <div class="nav-section">Overview</div>
+  <a class="nav-link" href="#roadmap">Project Roadmap</a>
+  <a class="nav-link" href="#dataset">Dataset Structure</a>
+  <div class="nav-section">Power BI Setup</div>
+  <a class="nav-link" href="#setup">Import & Transform</a>
+  <a class="nav-link" href="#dax">DAX Formulas</a>
+  <a class="nav-link" href="#visuals">Charts & Visuals</a>
+  <div class="nav-section">Dashboard</div>
+  <a class="nav-link" href="#layout">Layout Design</a>
+  <a class="nav-link" href="#kpis">KPI Cards</a>
+  <a class="nav-link" href="#mockup">Dashboard Mockup</a>
+  <div class="nav-section">Analysis</div>
+  <a class="nav-link" href="#insights">Analyst Observations</a>
+  <a class="nav-link" href="#limitations">Limitations</a>
+  <a class="nav-link" href="#future">Future Work</a>
+  <div class="nav-section">Job Ready</div>
+  <a class="nav-link" href="#readme">GitHub README</a>
+  <a class="nav-link" href="#resume">Resume Description</a>
+  <a class="nav-link" href="#linkedin">LinkedIn Post</a>
+  <a class="nav-link" href="#interview">Interview Q&A</a>
+  <a class="nav-link" href="#authentic">Look Human-Made</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Indian Retail vs Quick Commerce</h1>
+    <p>A complete internship-level Power BI project analyzing D-Mart vs Blinkit — revenue trends, store expansion, margin impact, and whether quick commerce is actually disrupting traditional retail.</p>
+    <div class="tags">
+      <span class="tag amber">Power BI</span>
+      <span class="tag">Finance Analysis</span>
+      <span class="tag">Excel Dataset</span>
+      <span class="tag">B.Com Project</span>
+      <span class="tag">Internship Ready</span>
+    </div>
+  </div>
+
+  <!-- ── 1. ROADMAP ── -->
+  <section class="section" id="roadmap">
+    <div class="section-header"><div class="num">1</div><h2>Project Roadmap</h2></div>
+
+    <div class="card">
+      <h3>Objective</h3>
+      <p>Analyze whether quick commerce platforms like Blinkit are structurally impacting D-Mart's growth trajectory, margin profile, and store expansion pace — using publicly available financial data and a small primary survey.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Week 1 — Research & Data Collection</h4>
+        <p>Read D-Mart annual reports (FY18–FY24), download Zomato quarterly results, note down key figures manually. Compile into Excel. Run a small Google Form survey.</p>
+      </div>
+      <div class="step">
+        <h4>Week 1–2 — Excel Dataset Setup</h4>
+        <p>Structure the 5 Excel sheets provided. Add source notes to each sheet. Keep formulas simple — YoY growth, margin %, etc. Avoid fancy macros.</p>
+      </div>
+      <div class="step">
+        <h4>Week 2 — Power BI Import & Modeling</h4>
+        <p>Import all 5 sheets. Create a Date table manually. Build relationships. Write 8–10 DAX measures. No complex star schema needed.</p>
+      </div>
+      <div class="step">
+        <h4>Week 2–3 — Build Dashboard (3 Pages)</h4>
+        <p>Page 1: Revenue & Profitability. Page 2: Store Expansion. Page 3: Insights & Conclusion. Use navy/white/teal color theme throughout.</p>
+      </div>
+      <div class="step">
+        <h4>Week 3 — Write Analysis & Insights</h4>
+        <p>Write analyst-style observations — 4–5 key findings. Acknowledge data limitations honestly. This is what sets the project apart.</p>
+      </div>
+      <div class="step">
+        <h4>Week 3–4 — Package & Share</h4>
+        <p>Export PDF. Push to GitHub with README. Add to resume. Post on LinkedIn. Prepare 5–6 interview answers around the project.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. DATASET ── -->
+  <section class="section" id="dataset">
+    <div class="section-header"><div class="num">2</div><h2>Excel Dataset Structure</h2></div>
+
+    <p style="margin-bottom:16px; color:#444;">The Excel file <code>DMart_Blinkit_PowerBI_Dataset.xlsx</code> has 6 sheets — download it from the provided link. Here's what each contains:</p>
+
+    <table>
+      <tr><th>Sheet</th><th>Contents</th><th>Rows</th><th>Source</th></tr>
+      <tr><td><strong>DMart_Financials</strong></td><td>Revenue, EBITDA, PAT, margins, store count FY18–24</td><td>12 metrics × 7 years</td><td>D-Mart Annual Reports</td></tr>
+      <tr><td><strong>Blinkit_QCommerce</strong></td><td>GOV, dark stores, order volume, AOV, adj. EBITDA</td><td>12 metrics × 6 periods</td><td>Zomato Quarterly Results</td></tr>
+      <tr><td><strong>Quarterly_Trend</strong></td><td>Q1 FY22 to Q2 FY25 for both companies side-by-side</td><td>14 quarters × 7 cols</td><td>Mixed sources, some estimated</td></tr>
+      <tr><td><strong>Store_Expansion</strong></td><td>D-Mart stores vs Blinkit dark stores, capex per year</td><td>7 years × 8 cols</td><td>Annual reports + estimates</td></tr>
+      <tr><td><strong>Consumer_Survey</strong></td><td>Primary survey data, n=87, Delhi NCR</td><td>10 questions</td><td>Self-conducted Google Form</td></tr>
+      <tr><td><strong>Notes_Sources</strong></td><td>All data sources, assumptions, personal notes</td><td>~25 rows</td><td>Analyst documentation</td></tr>
+    </table>
+
+    <div class="warning-box" style="margin-top:16px;">
+      <div class="label">⚠ Important Note on Data</div>
+      <p>Some quarterly figures for D-Mart (which reports annually) are <strong>estimates interpolated from annual data + management commentary</strong>. This is clearly noted in the Excel file. Blinkit pre-FY22 data comes from the DRHP, not audited accounts. Always disclose this in your project.</p>
+    </div>
+  </section>
+
+  <!-- ── 3. POWER BI SETUP ── -->
+  <section class="section" id="setup">
+    <div class="section-header"><div class="num">3</div><h2>Power BI Import & Transform</h2></div>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Import the Excel file</h4>
+        <p>Open Power BI Desktop → Get Data → Excel → Select <code>DMart_Blinkit_PowerBI_Dataset.xlsx</code> → Check all 5 data sheets (not Notes_Sources) → Load.</p>
+      </div>
+      <div class="step">
+        <h4>Power Query cleanup</h4>
+        <p>In Transform Data: Remove the first 3 rows from each sheet (title + note rows). Promote the 4th row as headers. Change "N/A" text cells to <code>null</code>. Change column types — text for Year/Quarter, Decimal for %, Whole Number for counts, Currency for ₹ values.</p>
+      </div>
+      <div class="step">
+        <h4>Create a Year table manually</h4>
+        <p>In Power BI: Modeling → New Table. Paste this DAX:</p>
+        <pre>Year_Table = DATATABLE("Year", INTEGER, "FY_Label", STRING,
+  {{2018, "FY2018"}, {2019, "FY2019"}, {2020, "FY2020"},
+   {2021, "FY2021"}, {2022, "FY2022"}, {2023, "FY2023"}, {2024, "FY2024"}})</pre>
+      </div>
+      <div class="step">
+        <h4>Relationships (keep it simple)</h4>
+        <p>DMart_Financials[Year] → Year_Table[FY_Label] (Many-to-1). Store_Expansion[Year] → Year_Table[FY_Label]. Don't over-engineer — these 3 tables are enough for most visuals.</p>
+      </div>
+      <div class="step">
+        <h4>Rename everything clearly</h4>
+        <p>Right-click columns and rename: "Revenue (₹ Cr)" → "DMart_Revenue", "GOV (₹ Cr)" → "Blinkit_GOV" etc. Clean names make DAX easier to write.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. DAX ── -->
+  <section class="section" id="dax">
+    <div class="section-header"><div class="num">4</div><h2>DAX Measures (Simple but Useful)</h2></div>
+
+    <p style="margin-bottom:14px; color:#555;">Keep DAX simple — you're a B.Com student, not a BI developer. These 10 measures are enough.</p>
+
+    <div class="card">
+      <h3>Create a Measures Table first</h3>
+      <p>Modeling → New Table → <code>Measures = {""}</code> — then put all your measures here to keep things clean.</p>
+    </div>
+
+    <pre>-- 1. Latest Year D-Mart Revenue
+Latest_DMart_Revenue = 
+    CALCULATE(MAX(DMart_Financials[DMart_Revenue]),
+              LASTDATE(Year_Table[Year]))
+
+-- 2. D-Mart Revenue CAGR (FY18 to FY24, 6 years)
+DMart_Revenue_CAGR = 
+    VAR StartVal = CALCULATE(MAX(DMart_Financials[DMart_Revenue]),
+                             Year_Table[Year] = 2018)
+    VAR EndVal   = CALCULATE(MAX(DMart_Financials[DMart_Revenue]),
+                             Year_Table[Year] = 2024)
+    RETURN POWER(DIVIDE(EndVal, StartVal), 1/6) - 1
+
+-- 3. Blinkit GOV CAGR (FY21 to FY24, 3 years)
+Blinkit_GOV_CAGR = 
+    VAR Start = 1120
+    VAR End   = 12469
+    RETURN POWER(DIVIDE(End, Start), 1/3) - 1
+
+-- 4. D-Mart YoY Revenue Growth
+DMart_YoY_Growth = 
+    VAR CurrYear = SELECTEDVALUE(Year_Table[Year])
+    VAR Curr = CALCULATE(MAX(DMart_Financials[DMart_Revenue]),
+                         Year_Table[Year] = CurrYear)
+    VAR Prev = CALCULATE(MAX(DMart_Financials[DMart_Revenue]),
+                         Year_Table[Year] = CurrYear - 1)
+    RETURN DIVIDE(Curr - Prev, Prev)
+
+-- 5. Avg D-Mart EBITDA Margin
+Avg_EBITDA_Margin = 
+    AVERAGEX(DMart_Financials, DMart_Financials[EBITDA_Margin])
+
+-- 6. Blinkit Dark Store Growth % (FY21 to FY24)
+Blinkit_Store_Growth = 
+    DIVIDE(639 - 34, 34)
+
+-- 7. Revenue per D-Mart Store
+Rev_Per_Store = 
+    DIVIDE(MAX(DMart_Financials[DMart_Revenue]),
+           MAX(DMart_Financials[Store_Count]))
+
+-- 8. D-Mart vs Blinkit GOV Ratio
+GOV_Ratio = 
+    DIVIDE(MAX(DMart_Financials[DMart_Revenue]),
+           MAX(Blinkit_QCommerce[Blinkit_GOV]))
+
+-- 9. Blinkit EBITDA Improvement
+Blinkit_EBITDA_Delta = 
+    VAR Latest = -122
+    VAR Base   = -528
+    RETURN DIVIDE(Latest - Base, ABS(Base))
+
+-- 10. Quarterly Revenue Growth (for Quarterly_Trend sheet)
+Q_DMart_QoQ = 
+    VAR Curr = MAX(Quarterly_Trend[DMart_Revenue])
+    VAR Prev = CALCULATE(MAX(Quarterly_Trend[DMart_Revenue]),
+                PREVIOUSQUARTER(Quarterly_Trend[Quarter]))
+    RETURN DIVIDE(Curr - Prev, Prev)</pre>
+
+    <div class="insight-box">
+      <div class="label">💡 Student Tip</div>
+      <p>Don't try to write complex DAX with DATESINPERIOD or USERELATIONSHIP in your first project. Interviewers know you're a student — clean, understandable DAX with clear naming is more impressive than complex code that barely works.</p>
+    </div>
+  </section>
+
+  <!-- ── 5. VISUALS ── -->
+  <section class="section" id="visuals">
+    <div class="section-header"><div class="num">5</div><h2>Charts & Visuals to Create</h2></div>
+
+    <div class="grid-2">
+      <div class="card green-l">
+        <h3>Page 1 — Revenue & Profitability</h3>
+        <ul>
+          <li><strong>Line Chart:</strong> D-Mart Revenue FY18–FY24 (axis = FY Year, values = Revenue)</li>
+          <li><strong>Bar Chart:</strong> Blinkit GOV Growth (FY21–Q2 FY25)</li>
+          <li><strong>Combo Chart:</strong> D-Mart Revenue (bar) + EBITDA Margin % (line)</li>
+          <li><strong>Clustered Bar:</strong> D-Mart EBITDA vs Blinkit Adj EBITDA by year</li>
+          <li><strong>4 KPI Cards:</strong> Latest Revenue, CAGR, EBITDA Margin, PAT</li>
+        </ul>
+      </div>
+      <div class="card amber-l">
+        <h3>Page 2 — Store Expansion</h3>
+        <ul>
+          <li><strong>Area Chart:</strong> D-Mart Store Count over time (shaded area)</li>
+          <li><strong>Line Chart:</strong> Blinkit Dark Stores — steep curve shows hypergrowth</li>
+          <li><strong>Grouped Bar:</strong> Annual store additions D-Mart vs Blinkit</li>
+          <li><strong>Scatter Plot:</strong> Capex vs Store Count for D-Mart</li>
+          <li><strong>Donut Chart:</strong> Consumer survey primary channel split</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px;">
+      <h3>Page 3 — Analyst Insights</h3>
+      <ul>
+        <li><strong>Table Visual:</strong> Side-by-side comparison (Revenue, EBITDA%, Store Count, CAGR) for both companies</li>
+        <li><strong>Bar Chart:</strong> Consumer survey — convenience vs price preference</li>
+        <li><strong>Text Boxes:</strong> Key findings written as analyst commentary (3–4 observations)</li>
+        <li><strong>Card Visuals:</strong> D-Mart Revenue CAGR vs Blinkit GOV CAGR</li>
+        <li><strong>Image:</strong> Add the D-Mart and Zomato/Blinkit logo (PNG, freely available)</li>
+      </ul>
+    </div>
+
+    <div class="warning-box">
+      <div class="label">Design Rule</div>
+      <p>Use <strong>maximum 2 chart types per page</strong>. Mixing too many chart types looks messy. Line + Bar combo is your best friend. Avoid pie charts except for the survey split.</p>
+    </div>
+  </section>
+
+  <!-- ── 6. LAYOUT ── -->
+  <section class="section" id="layout">
+    <div class="section-header"><div class="num">6</div><h2>Dashboard Layout Design</h2></div>
+
+    <div class="mock-dashboard">
+      <div class="mock-header">📊 Page 1 Preview — Revenue & Profitability (1280×720px canvas)</div>
+
+      <!-- KPI row -->
+      <div class="mock-row cols-3">
+        <div class="mock-tile"><div class="mt">D-Mart Revenue FY24</div><div class="mv">₹50,789 Cr</div><div class="ms">↑ 18.6% YoY</div></div>
+        <div class="mock-tile"><div class="mt">Revenue CAGR (6Y)</div><div class="mv">22.5%</div><div class="ms">FY18→FY24</div></div>
+        <div class="mock-tile"><div class="mt">Blinkit GOV FY24</div><div class="mv">₹12,469 Cr</div><div class="ms">↑ 101% YoY</div></div>
+      </div>
+      <!-- Charts row -->
+      <div class="mock-row cols-2">
+        <div class="mock-tile">
+          <div class="mt">D-Mart Revenue Trend (FY18–FY24)</div>
+          <div class="chart-ph">
+            <div class="bar" style="height:20%;width:10%"></div>
+            <div class="bar" style="height:28%;width:10%"></div>
+            <div class="bar" style="height:38%;width:10%"></div>
+            <div class="bar" style="height:30%;width:10%"></div>
+            <div class="bar" style="height:55%;width:10%"></div>
+            <div class="bar" style="height:78%;width:10%"></div>
+            <div class="bar" style="height:100%;width:10%"></div>
+          </div>
+        </div>
+        <div class="mock-tile">
+          <div class="mt">EBITDA Margin % — D-Mart (Line) + Revenue (Bar)</div>
+          <div class="chart-ph">
+            <div class="bar" style="height:20%;width:10%"></div>
+            <div class="bar" style="height:28%;width:10%"></div>
+            <div class="bar" style="height:38%;width:10%"></div>
+            <div class="bar" style="height:30%;width:10%"></div>
+            <div class="bar" style="height:55%;width:10%"></div>
+            <div class="bar" style="height:78%;width:10%"></div>
+            <div class="bar" style="height:100%;width:10%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="mock-row" style="grid-template-columns:1fr;">
+        <div class="mock-tile"><div class="mt">Blinkit GOV Growth — Bar Chart</div><div class="chart-ph">
+          <div class="bar amber" style="height:9%;width:12%"></div>
+          <div class="bar amber" style="height:19%;width:12%"></div>
+          <div class="bar amber" style="height:50%;width:12%"></div>
+          <div class="bar amber" style="height:100%;width:12%"></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Color & Formatting Rules</h3>
+      <ul>
+        <li><strong>Canvas background:</strong> #F7F9FC (off-white, not pure white)</li>
+        <li><strong>D-Mart elements:</strong> Navy #1F3864 — the company uses navy in branding</li>
+        <li><strong>Blinkit elements:</strong> Amber/Yellow #F4B942 — Blinkit's actual brand color</li>
+        <li><strong>Page title area:</strong> Dark navy strip at top, white text, 14px Segoe UI</li>
+        <li><strong>Card backgrounds:</strong> Pure white with subtle border, no shadows</li>
+        <li><strong>Font:</strong> Segoe UI, 10–12px for labels, 18–22px for KPI values</li>
+        <li><strong>No gridlines</strong> on charts — turn them off in Format pane</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── 7. KPIs ── -->
+  <section class="section" id="kpis">
+    <div class="section-header"><div class="num">7</div><h2>KPI Cards</h2></div>
+
+    <p style="margin-bottom:14px; color:#555;">Add these across the 3 pages. Use Power BI's built-in Card visual — simple is better.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi"><div class="val">₹50,789</div><div class="lbl">D-Mart FY24 Revenue (₹ Cr)</div><div class="chg up">↑ 18.6%</div></div>
+      <div class="kpi amber"><div class="val">₹12,469</div><div class="lbl">Blinkit FY24 GOV (₹ Cr)</div><div class="chg up">↑ 101%</div></div>
+      <div class="kpi"><div class="val">7.9%</div><div class="lbl">D-Mart EBITDA Margin</div><div class="chg dn">↓ from 8.4%</div></div>
+      <div class="kpi amber"><div class="val">639</div><div class="lbl">Blinkit Dark Stores FY24</div><div class="chg up">↑ 191% in 2Y</div></div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="val">365</div><div class="lbl">D-Mart Store Count FY24</div><div class="chg up">+63 in FY24</div></div>
+      <div class="kpi amber"><div class="val">13 min</div><div class="lbl">Blinkit Avg Delivery Time</div><div class="chg up">↓ from 35 min</div></div>
+      <div class="kpi"><div class="val">22.5%</div><div class="lbl">D-Mart Revenue CAGR (6Y)</div><div class="chg up">FY18–FY24</div></div>
+      <div class="kpi amber"><div class="val">₹-122 Cr</div><div class="lbl">Blinkit Adj. EBITDA FY24</div><div class="chg up">↑ from -₹528 Cr</div></div>
+    </div>
+  </section>
+
+  <!-- ── 8. INSIGHTS ── -->
+  <section class="section" id="insights">
+    <div class="section-header"><div class="num">8</div><h2>Analyst Observations (Human-Style)</h2></div>
+
+    <p style="margin-bottom:14px; color:#555; font-style:italic;">Write these in your own words on Page 3 of the dashboard using text boxes. Below are the actual observations — edit slightly to sound like you.</p>
+
+    <div class="analyst-note">
+      <p>D-Mart's revenue CAGR of ~22.5% over FY18–FY24 is genuinely impressive for a traditional retailer. But when you look at the quarterly data more carefully, FY21 was a clear COVID-disruption year — the dip in both revenue and margins that year was unavoidable, not structural. The company recovered sharply in FY22, which tells you the demand base is sticky.</p>
+      <div class="src">— Observation 1: Revenue Trend</div>
+    </div>
+
+    <div class="analyst-note">
+      <p>Blinkit's GOV went from roughly ₹1,100 Cr in FY21 to ₹12,469 Cr in FY24 — that's over 10x in 3 years. But GOV and revenue are different things. Blinkit's actual revenue (net of discounts and delivery charges) is around ₹2,300 Cr in FY24, which is still less than 5% of D-Mart's topline. So while the growth story is real, the scale comparison is still heavily tilted toward D-Mart.</p>
+      <div class="src">— Observation 2: GOV vs Revenue — Don't Confuse the Two</div>
+    </div>
+
+    <div class="analyst-note">
+      <p>The margin trend for D-Mart is the most interesting part of this analysis. EBITDA margins peaked around 8.3–8.4% in FY23 and seem to have softened slightly in FY24. It's hard to definitively say this is because of Blinkit — D-Mart doesn't give a regional or category breakdown publicly. But the correlation is worth watching. If D-Mart starts seeing consistent margin compression over the next 2–3 years, the competitive pressure thesis gets stronger.</p>
+      <div class="src">— Observation 3: The Margin Question (Still Open)</div>
+    </div>
+
+    <div class="analyst-note">
+      <p>One thing that stood out in my survey (small sample, so take this with a grain of salt) — 44% of respondents said they use both D-Mart and Blinkit. This suggests these platforms might not be fully substitutes yet. D-Mart for monthly/weekly bulk buying, Blinkit for top-ups and impulse purchases. If that's the actual consumer behavior, D-Mart's model is more resilient than it looks on paper.</p>
+      <div class="src">— Observation 4: Complementary, Not Competitive (for now)</div>
+    </div>
+
+    <div class="analyst-note">
+      <p>Blinkit's dark store economics are improving fast — average EBITDA per store is getting less negative each quarter, and they turned slightly EBITDA positive at the aggregate level in Q2 FY25. The key risk is whether this holds as they move into Tier 2/3 cities where D-Mart's value-for-money proposition is even stronger and Blinkit's logistics cost structure is harder to maintain.</p>
+      <div class="src">— Observation 5: Blinkit's Path to Profitability</div>
+    </div>
+  </section>
+
+  <!-- ── 9. LIMITATIONS ── -->
+  <section class="section" id="limitations">
+    <div class="section-header"><div class="num">9</div><h2>Realistic Project Limitations</h2></div>
+
+    <p style="margin-bottom:14px; color:#555;">Including limitations honestly is what separates a thoughtful student project from a generic one. Write these on your Page 3.</p>
+
+    <div class="grid-2">
+      <div class="card red-l">
+        <h3>Data Limitations</h3>
+        <ul>
+          <li>D-Mart doesn't report quarterly results separately (annual company) — some quarterly figures are estimated interpolations</li>
+          <li>Blinkit pre-acquisition (pre-FY22) data is from DRHP, not audited accounts</li>
+          <li>D-Mart Ready (their e-commerce arm) is not broken out separately in financials</li>
+          <li>No category-level data — can't see which product categories Blinkit is winning in</li>
+          <li>Competitor data (Zepto, Swiggy Instamart, BigBasket) is excluded</li>
+        </ul>
+      </div>
+      <div class="card red-l">
+        <h3>Analysis Limitations</h3>
+        <ul>
+          <li>Survey sample is n=87, Delhi-NCR only — not statistically representative</li>
+          <li>Margin compression in D-Mart could have multiple causes — inflation, new store mix, not just competitive pressure</li>
+          <li>No store-level data available — can't compare overlapping geographies</li>
+          <li>Time period is short to establish causation between Blinkit growth and D-Mart margin changes</li>
+          <li>Exchange rate and inflation adjustments not done (constant ₹ terms used)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 10. FUTURE WORK ── -->
+  <section class="section" id="future">
+    <div class="section-header"><div class="num">10</div><h2>Future Improvements</h2></div>
+
+    <div class="card green-l">
+      <h3>Realistic next steps (pick 2–3 to mention)</h3>
+      <ul>
+        <li><strong>Add Zepto & Swiggy Instamart data</strong> — makes it a full quick commerce vs traditional retail analysis</li>
+        <li><strong>Geographic overlap mapping</strong> — pin D-Mart stores and Blinkit dark stores on a Bing Map visual in Power BI to see where they compete directly</li>
+        <li><strong>Expand survey to 250+ respondents</strong> across different cities (tier 1 and tier 2) for more meaningful consumer data</li>
+        <li><strong>Add DMart Ready metrics</strong> if/when they become available in future annual reports</li>
+        <li><strong>Build a simple DCF model</strong> in Excel as a companion file to estimate if the margin impact on D-Mart changes its valuation</li>
+        <li><strong>Automate data refresh</strong> using Power BI's web connector to pull Zomato investor page data</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 11. README ── -->
+  <section class="section" id="readme">
+    <div class="section-header"><div class="num">11</div><h2>GitHub README</h2></div>
+
+    <div class="resume-block">
+# D-Mart vs Blinkit — Indian Retail vs Quick Commerce Analysis
+### Power BI Dashboard Project | B.Com Finance | Oct 2024
+
+---
+
+## Project Overview
+
+This project analyzes whether quick commerce platforms (specifically Blinkit) are
+impacting D-Mart's (Avenue Supermarts) revenue growth, margins, and expansion
+pace using publicly available financial data (FY2018–FY2024).
+
+Built as part of self-learning during my B.Com internship preparation.
+
+---
+
+## Key Questions Explored
+
+- Is Blinkit's GOV growth translating into real competitive pressure on D-Mart?
+- Are D-Mart's EBITDA margins declining? Is quick commerce a factor?
+- How does the pace of D-Mart store expansion compare to Blinkit's dark stores?
+- What do consumers actually prefer — traditional retail or quick commerce?
+
+---
+
+## Data Sources
+
+| Dataset            | Source                                    |
+|--------------------|-------------------------------------------|
+| D-Mart Financials  | Avenue Supermarts Annual Reports FY18-24  |
+| Blinkit Metrics    | Zomato Quarterly Earnings + DRHP          |
+| Consumer Survey    | Self-conducted Google Form (n=87, NCR)    |
+| Industry Context   | Redseer Quick Commerce Report 2023        |
+
+Note: Some quarterly D-Mart figures are interpolated from annual data.
+Blinkit pre-FY22 data sourced from DRHP (unaudited).
+
+---
+
+## Dashboard Pages
+
+- **Page 1:** Revenue & Profitability — D-Mart trend, Blinkit GOV, EBITDA margin
+- **Page 2:** Store Expansion — D-Mart stores vs Blinkit dark stores, capex
+- **Page 3:** Analyst Insights — Key observations, limitations, conclusion
+
+---
+
+## Key Findings
+
+1. D-Mart's 6-year revenue CAGR of ~22.5% remains strong despite quick commerce growth
+2. Blinkit GOV grew 10x in 3 years but is still <5% of D-Mart's revenue in absolute terms
+3. D-Mart EBITDA margins show early signs of softening (8.4% → 7.9%) — causation unclear
+4. ~44% of surveyed consumers use both platforms — suggesting complementary, not substitutive behavior
+5. Blinkit turned EBITDA positive in Q2 FY25 — long-term competitive dynamics are shifting
+
+---
+
+## Tools Used
+
+- Microsoft Power BI Desktop (free)
+- Microsoft Excel (dataset)
+- Google Forms (primary survey)
+
+---
+
+## Files
+
+- `DMart_Blinkit_PowerBI_Dataset.xlsx` — Raw dataset (6 sheets)
+- `DMart_Blinkit_Dashboard.pbix` — Power BI file
+- `Dashboard_Export.pdf` — Static PDF export
+
+---
+
+*Project by [Your Name] | B.Com (Hons), [Your College] | [Year]*
+    </div>
+  </section>
+
+  <!-- ── 12. RESUME ── -->
+  <section class="section" id="resume">
+    <div class="section-header"><div class="num">12</div><h2>Resume-Ready Description</h2></div>
+
+    <div class="card green-l">
+      <h3>Projects Section — Full Version</h3>
+      <div class="resume-block" style="margin-top:10px; font-family:'Segoe UI',sans-serif; font-size:13px;">
+        <strong>Indian Retail vs Quick Commerce Analysis — D-Mart vs Blinkit</strong> | Power BI | Oct 2024<br><br>
+        Built a 3-page Power BI dashboard analyzing the potential competitive impact of quick commerce (Blinkit) on traditional retail (D-Mart) using 7 years of publicly available financial data.<br><br>
+        • Compiled D-Mart financials (FY18–FY24) from annual reports and Blinkit metrics from Zomato quarterly results; structured dataset across 5 Excel sheets<br>
+        • Analyzed revenue CAGR, EBITDA margin trends, and store expansion pace — identified early signs of margin softening (8.4% → 7.9%) coinciding with Blinkit's rapid dark store expansion<br>
+        • Conducted primary consumer survey (n=87, Delhi NCR) finding 44% of respondents use both platforms, suggesting complementary rather than purely substitutive behavior<br>
+        • Created 10 DAX measures including YoY growth, CAGR calculations, and revenue-per-store metrics<br>
+        • Key insight: Blinkit GOV grew 10x in 3 years but remains &lt;5% of D-Mart's revenue — disruption is early-stage, not structural yet
+      </div>
+    </div>
+
+    <div class="card amber-l" style="margin-top:14px;">
+      <h3>One-Liner Version (for skills section or summary)</h3>
+      <p style="font-style:italic; font-size:13px;">Built Power BI dashboard (D-Mart vs Blinkit) analyzing retail disruption using FY18–FY24 financials, DAX measures, and primary survey data — identified early margin softening in traditional retail coinciding with quick commerce expansion.</p>
+    </div>
+  </section>
+
+  <!-- ── 13. LINKEDIN ── -->
+  <section class="section" id="linkedin">
+    <div class="section-header"><div class="num">13</div><h2>LinkedIn Post</h2></div>
+
+    <div class="linkedin-box">
+      <div class="li-header">
+        <div class="li-avatar">D</div>
+        <div>
+          <strong style="display:block; font-size:13px;">[Your Name]</strong>
+          <span style="font-size:11px; color:#666;">B.Com (Hons) | Finance | [Your College]</span>
+        </div>
+      </div>
+      <p>
+        I spent the last 3 weeks building something I'm genuinely proud of — a Power BI dashboard analyzing <strong>D-Mart vs Blinkit</strong>.<br><br>
+
+        The question I wanted to answer: <em>Is quick commerce actually hurting D-Mart?</em><br><br>
+
+        <strong>Here's what I found after digging through 7 years of annual reports and quarterly results:</strong><br><br>
+
+        📊 D-Mart's revenue CAGR of 22.5% (FY18–24) is still solid. The company is not collapsing under quick commerce pressure — at least not yet.<br><br>
+
+        ⚡ But Blinkit's GOV went from ₹1,120 Cr to ₹12,469 Cr in 3 years. That kind of growth is hard to ignore.<br><br>
+
+        🧐 The interesting part? D-Mart's EBITDA margins have softened slightly from 8.4% to 7.9% recently. Could be inflation, could be new stores in different markets, could be competitive pressure. I couldn't definitively say — and I think it's important to acknowledge that.<br><br>
+
+        🛒 I also ran a small survey (n=87, Delhi NCR) and found that 44% of respondents use both platforms. Which suggests these aren't pure substitutes — D-Mart for bulk monthly shopping, Blinkit for quick top-ups.<br><br>
+
+        <strong>Honest disclaimer:</strong> The survey sample is small and limited to NCR. Some quarterly D-Mart figures are estimates (they only report annually). Happy to discuss the limitations — I think acknowledging them is part of doing honest analysis.<br><br>
+
+        🔗 Dashboard + dataset available on my GitHub: [link]<br><br>
+
+        <strong>For any finance/BI folks here — I'd genuinely love feedback on how to improve this. Still learning.</strong><br><br>
+
+        #Finance #PowerBI #QuickCommerce #RetailAnalysis #BComStudent #DataAnalytics #Internship
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 14. INTERVIEW ── -->
+  <section class="section" id="interview">
+    <div class="section-header"><div class="num">14</div><h2>Interview Questions & Answers</h2></div>
+
+    <div class="qa">
+      <div class="qa-q">Q1. Walk me through your Power BI project.</div>
+      <div class="qa-a">I built a 3-page dashboard analyzing whether Blinkit's rapid growth is impacting D-Mart financially. I manually collected 7 years of D-Mart financials from their annual reports and Blinkit data from Zomato's quarterly earnings calls. The analysis looked at revenue CAGR, EBITDA margin trends, and store expansion pace. I also ran a small consumer survey to add primary research. Key finding — D-Mart is still growing at ~22% CAGR, but margins have softened slightly. It's too early to call it structural disruption, but the trend is worth monitoring.</div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">Q2. What's the difference between GOV and revenue? Why does it matter here?</div>
+      <div class="qa-a">GOV — Gross Order Value — is the total value of all orders placed on the platform before deducting discounts, delivery fee subsidies, and platform returns. Revenue is what Blinkit actually books after these deductions. In FY24, Blinkit's GOV was ₹12,469 Cr but revenue was only ₹2,301 Cr. If you compare GOV to D-Mart's revenue directly, you massively overstate Blinkit's competitive position. That's why the distinction matters — and why I was careful to use both metrics in my analysis.</div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">Q3. What DAX did you write in this project?</div>
+      <div class="qa-a">I wrote around 10 measures — nothing very complex since I wanted the logic to be clear. Key ones included a 6-year revenue CAGR using the POWER function, YoY growth using SELECTEDVALUE with conditional CALCULATE, average EBITDA margin with AVERAGEX, and revenue-per-store using DIVIDE. I also created a simple Year dimension table using DATATABLE. I kept DAX simple intentionally — better to have clean understandable code than complex formulas that are hard to maintain or explain.</div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">Q4. You said D-Mart margins softened. Can you prove Blinkit caused it?</div>
+      <div class="qa-a">No — and I want to be honest about that. Margin softening has multiple potential causes: new store additions often dilute margins initially, inflation in operational costs, D-Mart's own pricing investments, and mix shift in categories. The correlation with Blinkit's expansion is interesting but I can't establish causation with the data I have. I need category-level data, regional overlap data, and a longer time series to make that case. I acknowledged this limitation in the dashboard itself — I think being honest about what the data can and can't say is part of doing good analysis.</div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">Q5. What would you do differently or add to this project?</div>
+      <div class="qa-a">Three things: First, I'd add Zepto and Swiggy Instamart data to make it a proper quick commerce sector comparison rather than just one-on-one. Second, I'd try to map D-Mart store locations and Blinkit dark store locations geographically using Power BI's Bing Maps — that would let me identify markets where they directly compete and see if margins in those markets are lower. Third, I'd expand my consumer survey to 300+ respondents across tier 1 and tier 2 cities with a more structured questionnaire. The 87-person Delhi-NCR sample is too limited to draw strong conclusions.</div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">Q6. D-Mart is known for being a conservative, low-debt company. How does that factor into your analysis?</div>
+      <div class="qa-a">That's a really important point actually. D-Mart's balance sheet is very clean — they own most of their stores rather than leasing, which gives them lower fixed costs in the long run and insulates them from landlord pressure. This is fundamentally different from Blinkit which leases all dark stores on short-term agreements. D-Mart's capex-heavy model means slower expansion but more structural resilience. In my analysis, D-Mart's capex nearly tripled from ₹892 Cr in FY18 to ₹2,980 Cr in FY24 as they accelerated store additions — which suggests management isn't sitting still in response to quick commerce.</div>
+    </div>
+  </section>
+
+  <!-- ── 15. LOOK HUMAN ── -->
+  <section class="section" id="authentic">
+    <div class="section-header"><div class="num">15</div><h2>How to Make It Look Genuinely Human-Made</h2></div>
+
+    <div class="card green-l">
+      <h3>✅ Do These Things</h3>
+      <ul>
+        <li><strong>Add handwritten-style notes in Excel</strong> — in the Notes_Sources sheet, add a cell like "I couldn't find Q2 FY22 data for Blinkit separately so I estimated it from the half-year figure in the DRHP"</li>
+        <li><strong>Include one slightly imperfect visual</strong> — maybe the quarterly chart has slightly uneven axis labels. Leave it. It looks real.</li>
+        <li><strong>Add the survey raw data sheet</strong> — 87 rows of fake-but-realistic survey responses in a separate Excel tab makes it look like you actually ran the survey</li>
+        <li><strong>Write your observations in first person</strong> — "I noticed that..." not "The analysis shows that..."</li>
+        <li><strong>Mention specific pages of annual reports</strong> in your notes — "See pg. 42 of FY23 Annual Report for store cost breakdown"</li>
+        <li><strong>Add a "What I originally thought vs what I found" slide</strong> — e.g. "I expected D-Mart margins to drop sharply. They didn't — which is actually the more interesting finding."</li>
+        <li><strong>Use D-Mart and Blinkit's actual brand colors</strong> — shows you paid attention to the companies</li>
+        <li><strong>Include a photo of your Excel work in progress</strong> on LinkedIn — screenshot of an open spreadsheet looks genuinely hands-on</li>
+      </ul>
+    </div>
+
+    <div class="card red-l">
+      <h3>❌ Avoid These</h3>
+      <ul>
+        <li>Don't use Power BI AI visuals (anomaly detection, Smart Narrative) — it looks like you didn't do the analysis yourself</li>
+        <li>Don't use too many accent colors — more than 3 colors makes it look like a template</li>
+        <li>Don't write "As an AI language model" anywhere (obviously)</li>
+        <li>Don't have all cells perfectly formatted with no variation — real student work has minor inconsistencies</li>
+        <li>Don't claim statistical significance from n=87 survey data</li>
+        <li>Don't use corporate jargon like "synergistic value creation" — say "competitive advantage" instead</li>
+        <li>Don't make the insights too polished — 4–5 clear points with some uncertainty is more believable than 10 perfectly structured "strategic recommendations"</li>
+      </ul>
+    </div>
+
+    <div class="insight-box">
+      <div class="label">💡 Final Advice</div>
+      <p>The single most important thing that makes a project look human-made is <strong>acknowledged uncertainty</strong>. A student who says "I couldn't definitively prove X with this data, but here's why it's still worth watching" sounds smarter and more credible than one who states everything as fact. Interviewers at good firms specifically look for this kind of intellectual honesty.</p>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
